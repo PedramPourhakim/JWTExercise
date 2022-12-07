@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,6 +64,29 @@ namespace JWT
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseStatusCodePages(async context => {
+                var request = context.HttpContext.Request;
+                var response = context.HttpContext.Response;
+
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+                // you may also check requests path to do this only for specific methods       
+                // && request.Path.Value.StartsWith("/specificPath")
+
+                {
+                    response.Redirect("Index");
+                }
+                //app.UseStatusCodePages(async context =>
+                //{
+                //    var request = context.HttpContext.Request;
+                //    var response = context.HttpContext.Response;
+                //    var path = request.Path.Value ?? "";
+
+                //    if (response.StatusCode == (int)HttpStatusCode.Unauthorized && path.StartsWith("/api", StringComparison.InvariantCultureIgnoreCase))
+                //    {
+                //        response.Redirect("~/Account/Login");
+                //    }
+                //});
+            });
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
